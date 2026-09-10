@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-test:
+    name: Build, Lint & Test (Ubuntu Clang & GCC)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [clang, gcc]
+        build_type: [Release, Debug]
+        include:
+          - compiler: clang
+            c_compiler: clang
+            cxx_compiler: clang++
+          - compiler: gcc
+            c_compiler: gcc
+            cxx_compiler: g++
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies & tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake clang-format ninja-build
+
+      - name: Check code formatting
+        if: matrix.compiler == 'clang' && matrix.build_type == 'Release'
+        run: |
+          clang-format --dry-run -Werror include/ccsds/*.hpp src/*.cpp tests/*.cpp benchmarks/*.cpp
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx_compiler }}
+
+      - name: Build all targets
+        run: |
+          cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Run unit and integration tests
+        run: |
+          ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}
+
+      - name: Run throughput benchmark
+        if: matrix.build_type == 'Release'
+        run: |
+          ./build/benchmark_throughput
