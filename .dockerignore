@@ -1,0 +1,9 @@
+build*/
+bin/
+.git
+*.o
+*.a
+*.so
+*.gcda
+*.gcno
+*.gcov
