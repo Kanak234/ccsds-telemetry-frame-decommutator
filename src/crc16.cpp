@@ -43,13 +43,13 @@ bool Crc16::verify(std::span<const uint8_t> frame_with_crc) const {
   std::span<const uint8_t> payload = frame_with_crc.subspan(0, data_len);
 
   // Extract the big-endian 16-bit CRC appended to the frame
-  uint16_t expected_crc = static_cast<uint16_t>(
-      (static_cast<uint16_t>(frame_with_crc[data_len]) << 8) |
-      static_cast<uint16_t>(frame_with_crc[data_len + 1]));
+  uint16_t expected_crc =
+      static_cast<uint16_t>((static_cast<uint16_t>(frame_with_crc[data_len]) << 8) |
+                            static_cast<uint16_t>(frame_with_crc[data_len + 1]));
 
   // Compute CRC on payload and compare
   uint16_t calculated_crc = compute(payload);
   return calculated_crc == expected_crc;
 }
 
-} // namespace ccsds
+}  // namespace ccsds

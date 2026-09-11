@@ -1,11 +1,12 @@
 #ifndef CCSDS_FRAME_SYNC_HPP
 #define CCSDS_FRAME_SYNC_HPP
 
-#include "ccsds/types.hpp"
 #include <bit>
 #include <cstdint>
 #include <span>
 #include <vector>
+
+#include "ccsds/types.hpp"
 
 namespace ccsds {
 
@@ -14,8 +15,8 @@ namespace ccsds {
  * (SEARCH -> CHECK -> LOCK -> FLYWHEEL).
  */
 class FrameSynchronizer {
-public:
-  explicit FrameSynchronizer(const DecommutatorConfig &config = {});
+ public:
+  explicit FrameSynchronizer(const DecommutatorConfig& config = {});
 
   // Ingests a chunk of raw byte stream telemetry and extracts any fully
   // synchronized CADUs.
@@ -27,14 +28,14 @@ public:
   // Accessors for state inspection and testing
   SyncState current_state() const noexcept { return state_; }
   size_t buffer_size() const noexcept { return buffer_.size(); }
-  const PipelineStats &stats() const noexcept { return stats_; }
+  const PipelineStats& stats() const noexcept { return stats_; }
 
   // Calculates the bit Hamming distance between two 32-bit values
   static constexpr size_t hamming_distance(uint32_t a, uint32_t b) noexcept {
     return static_cast<size_t>(std::popcount(a ^ b));
   }
 
-private:
+ private:
   DecommutatorConfig config_;
   SyncState state_{SyncState::SEARCH};
   std::vector<uint8_t> buffer_;
@@ -51,12 +52,12 @@ private:
   AsmMatch check_asm_at(size_t offset) const;
 
   // Handles processing for each state
-  void process_search(std::vector<Cadu> &output);
-  void process_check(std::vector<Cadu> &output);
-  void process_lock(std::vector<Cadu> &output);
-  void process_flywheel(std::vector<Cadu> &output);
+  void process_search(std::vector<Cadu>& output);
+  void process_check(std::vector<Cadu>& output);
+  void process_lock(std::vector<Cadu>& output);
+  void process_flywheel(std::vector<Cadu>& output);
 };
 
-} // namespace ccsds
+}  // namespace ccsds
 
-#endif // CCSDS_FRAME_SYNC_HPP
+#endif  // CCSDS_FRAME_SYNC_HPP

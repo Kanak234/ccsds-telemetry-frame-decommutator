@@ -1,6 +1,7 @@
-#include "ccsds/descrambler.hpp"
 #include <cassert>
 #include <iostream>
+
+#include "ccsds/descrambler.hpp"
 
 void test_descrambler_inversion() {
   ccsds::Descrambler descrambler;
@@ -20,7 +21,7 @@ void test_descrambler_inversion() {
 
 void test_known_pn_sequence() {
   ccsds::Descrambler descrambler;
-  const auto &seq = descrambler.sequence();
+  const auto& seq = descrambler.sequence();
   assert(seq.size() == 255);
 
   // Initial state is 0xFF.
@@ -29,8 +30,7 @@ void test_known_pn_sequence() {
   size_t ones_count = 0;
   for (uint8_t b : seq) {
     for (int bit = 0; bit < 8; ++bit) {
-      if ((b >> bit) & 1)
-        ones_count++;
+      if ((b >> bit) & 1) ones_count++;
     }
   }
   // For a maximal-length sequence, roughly half the bits should be 1

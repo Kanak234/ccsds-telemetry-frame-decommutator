@@ -1,11 +1,12 @@
-#include "ccsds/transfer_frame.hpp"
 #include <cassert>
 #include <iostream>
+
+#include "ccsds/transfer_frame.hpp"
 
 void test_transfer_frame_pack_parse() {
   ccsds::TransferFrameHeader header;
   header.version = 0;
-  header.spacecraft_id = 0x2A5; // 677
+  header.spacecraft_id = 0x2A5;  // 677
   header.virtual_channel_id = 3;
   header.master_frame_count = 42;
   header.virtual_frame_count = 17;
@@ -17,14 +18,14 @@ void test_transfer_frame_pack_parse() {
   uint32_t ocf = 0xC001CAFE;
 
   std::vector<uint8_t> packed =
-      ccsds::TransferFrameParser::pack(header, payload, ocf, true // with CRC
+      ccsds::TransferFrameParser::pack(header, payload, ocf, true  // with CRC
       );
 
   ccsds::TransferFrameParser parser(true);
   auto unpacked_opt = parser.parse(packed);
 
   assert(unpacked_opt.has_value());
-  const auto &unpacked = unpacked_opt.value();
+  const auto& unpacked = unpacked_opt.value();
   assert(unpacked.valid);
   assert(unpacked.crc_valid);
   assert(unpacked.header.version == 0);

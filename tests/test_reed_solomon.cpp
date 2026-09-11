@@ -1,9 +1,10 @@
-#include "ccsds/reed_solomon.hpp"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <random>
 #include <vector>
+
+#include "ccsds/reed_solomon.hpp"
 
 void test_clean_codeword() {
   ccsds::ReedSolomon rs(112);
@@ -44,8 +45,7 @@ void test_error_correction() {
     std::vector<uint8_t> corrupted = original_codeword;
 
     std::vector<size_t> positions(255);
-    for (size_t i = 0; i < 255; ++i)
-      positions[i] = i;
+    for (size_t i = 0; i < 255; ++i) positions[i] = i;
     std::shuffle(positions.begin(), positions.end(), rng);
 
     for (size_t e = 0; e < err_count; ++e) {

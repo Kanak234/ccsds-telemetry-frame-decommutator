@@ -17,7 +17,7 @@ namespace ccsds {
  * Sequence length: 255 bytes (repeating)
  */
 class Descrambler {
-public:
+ public:
   Descrambler();
 
   // Applies in-place descrambling (or scrambling, since XOR is self-inverting)
@@ -25,15 +25,15 @@ public:
   void process(std::span<uint8_t> data) const;
 
   // Returns a copy of the pre-generated 255-byte PN sequence for verification
-  const std::vector<uint8_t> &sequence() const { return sequence_; }
+  const std::vector<uint8_t>& sequence() const { return sequence_; }
 
-private:
+ private:
   std::vector<uint8_t> sequence_;
 
   // Precomputes the repeating 255-byte pseudo-random sequence
   void generate_sequence();
 };
 
-} // namespace ccsds
+}  // namespace ccsds
 
-#endif // CCSDS_DESCRAMBLER_HPP
+#endif  // CCSDS_DESCRAMBLER_HPP

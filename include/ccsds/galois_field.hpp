@@ -13,17 +13,13 @@ namespace ccsds {
  * 1 (0x187) Generator root: alpha = 0x02
  */
 class GaloisField {
-public:
+ public:
   GaloisField();
 
   // Field addition and subtraction in GF(2^8) are bitwise XOR
-  [[nodiscard]] static constexpr uint8_t add(uint8_t a, uint8_t b) noexcept {
-    return a ^ b;
-  }
+  [[nodiscard]] static constexpr uint8_t add(uint8_t a, uint8_t b) noexcept { return a ^ b; }
 
-  [[nodiscard]] static constexpr uint8_t sub(uint8_t a, uint8_t b) noexcept {
-    return a ^ b;
-  }
+  [[nodiscard]] static constexpr uint8_t sub(uint8_t a, uint8_t b) noexcept { return a ^ b; }
 
   // Field multiplication via logarithmic lookup tables
   [[nodiscard]] uint8_t mul(uint8_t a, uint8_t b) const noexcept;
@@ -43,22 +39,19 @@ public:
   // Evaluates a polynomial P(x) at point x using Horner's method
   // coefficients are ordered [c0, c1, c2, ...] where P(x) = c0 + c1*x + c2*x^2
   // + ...
-  [[nodiscard]] uint8_t poly_eval(const std::vector<uint8_t> &poly,
-                                  uint8_t x) const noexcept;
+  [[nodiscard]] uint8_t poly_eval(const std::vector<uint8_t>& poly, uint8_t x) const noexcept;
 
   // Polynomial multiplication in GF(2^8)[x]
-  [[nodiscard]] std::vector<uint8_t>
-  poly_mul(const std::vector<uint8_t> &p1,
-           const std::vector<uint8_t> &p2) const;
+  [[nodiscard]] std::vector<uint8_t> poly_mul(const std::vector<uint8_t>& p1,
+                                              const std::vector<uint8_t>& p2) const;
 
-private:
-  std::array<uint8_t, 512>
-      exp_table_{}; // Sized 512 to avoid modulo 255 operations in mul
+ private:
+  std::array<uint8_t, 512> exp_table_{};  // Sized 512 to avoid modulo 255 operations in mul
   std::array<uint8_t, 256> log_table_{};
 
   void init_tables();
 };
 
-} // namespace ccsds
+}  // namespace ccsds
 
-#endif // CCSDS_GALOIS_FIELD_HPP
+#endif  // CCSDS_GALOIS_FIELD_HPP
