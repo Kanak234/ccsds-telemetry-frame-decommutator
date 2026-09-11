@@ -1,8 +1,9 @@
-#include "ccsds/decommutator.hpp"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <vector>
+
+#include "ccsds/decommutator.hpp"
 
 int main() {
   std::cout << "=== Running CCSDS Decommutator Performance Benchmark ===\n";
@@ -10,9 +11,8 @@ int main() {
   constexpr size_t NUM_FRAMES = 5000;
   constexpr size_t FRAME_SIZE = 1024;
   constexpr size_t RS_DEPTH = 4;
-  constexpr size_t TF_INFO_LEN = RS_DEPTH * 223; // 892 bytes
-  constexpr size_t DATA_FIELD_LEN =
-      TF_INFO_LEN - ccsds::TF_PRIMARY_HEADER_SIZE - 2;
+  constexpr size_t TF_INFO_LEN = RS_DEPTH * 223;  // 892 bytes
+  constexpr size_t DATA_FIELD_LEN = TF_INFO_LEN - ccsds::TF_PRIMARY_HEADER_SIZE - 2;
 
   ccsds::ReedSolomon rs(112);
   ccsds::Descrambler descrambler;
@@ -26,8 +26,7 @@ int main() {
   sample_pkt.apid = 0x150;
   sample_pkt.sequence_flags = 3;
   sample_pkt.payload = std::vector<uint8_t>(200, 0x5A);
-  std::vector<uint8_t> raw_pkt =
-      ccsds::PacketExtractor::serialize_packet(sample_pkt);
+  std::vector<uint8_t> raw_pkt = ccsds::PacketExtractor::serialize_packet(sample_pkt);
 
   std::vector<uint8_t> data_field(DATA_FIELD_LEN, 0x00);
   std::copy(raw_pkt.begin(), raw_pkt.end(), data_field.begin());
@@ -87,18 +86,16 @@ int main() {
 
   std::chrono::duration<double> elapsed = end - start;
   double seconds = elapsed.count();
-  double mb_total =
-      static_cast<double>(NUM_FRAMES * FRAME_SIZE) / (1024.0 * 1024.0);
+  double mb_total = static_cast<double>(NUM_FRAMES * FRAME_SIZE) / (1024.0 * 1024.0);
   double mb_per_sec = mb_total / seconds;
   double frames_per_sec = static_cast<double>(NUM_FRAMES) / seconds;
 
   std::cout << "\n--- Benchmark Results ---\n";
-  std::cout << "Elapsed Time:      " << std::fixed << std::setprecision(4)
-            << seconds << " s\n";
-  std::cout << "Throughput:        " << std::fixed << std::setprecision(2)
-            << mb_per_sec << " MB/s\n";
-  std::cout << "Frame Processing:  " << std::fixed << std::setprecision(1)
-            << frames_per_sec << " frames/sec\n";
+  std::cout << "Elapsed Time:      " << std::fixed << std::setprecision(4) << seconds << " s\n";
+  std::cout << "Throughput:        " << std::fixed << std::setprecision(2) << mb_per_sec
+            << " MB/s\n";
+  std::cout << "Frame Processing:  " << std::fixed << std::setprecision(1) << frames_per_sec
+            << " frames/sec\n";
   std::cout << "Packets Extracted: " << packets.size() << "\n";
   std::cout << "Mean Latency:      " << std::fixed << std::setprecision(2)
             << (seconds / NUM_FRAMES) * 1e6 << " us/frame\n";

@@ -1,4 +1,5 @@
 #include "ccsds/galois_field.hpp"
+
 #include <cassert>
 
 namespace ccsds {
@@ -28,8 +29,7 @@ uint8_t GaloisField::mul(uint8_t a, uint8_t b) const noexcept {
   if (a == 0 || b == 0) {
     return 0;
   }
-  size_t idx =
-      static_cast<size_t>(log_table_[a]) + static_cast<size_t>(log_table_[b]);
+  size_t idx = static_cast<size_t>(log_table_[a]) + static_cast<size_t>(log_table_[b]);
   return exp_table_[idx];
 }
 
@@ -63,8 +63,7 @@ uint8_t GaloisField::log(uint8_t val) const noexcept {
   return log_table_[val];
 }
 
-uint8_t GaloisField::poly_eval(const std::vector<uint8_t> &poly,
-                               uint8_t x) const noexcept {
+uint8_t GaloisField::poly_eval(const std::vector<uint8_t>& poly, uint8_t x) const noexcept {
   if (poly.empty()) {
     return 0;
   }
@@ -78,23 +77,20 @@ uint8_t GaloisField::poly_eval(const std::vector<uint8_t> &poly,
   return result;
 }
 
-std::vector<uint8_t>
-GaloisField::poly_mul(const std::vector<uint8_t> &p1,
-                      const std::vector<uint8_t> &p2) const {
+std::vector<uint8_t> GaloisField::poly_mul(const std::vector<uint8_t>& p1,
+                                           const std::vector<uint8_t>& p2) const {
   if (p1.empty() || p2.empty()) {
     return {};
   }
   std::vector<uint8_t> result(p1.size() + p2.size() - 1, 0);
   for (size_t i = 0; i < p1.size(); ++i) {
-    if (p1[i] == 0)
-      continue;
+    if (p1[i] == 0) continue;
     for (size_t j = 0; j < p2.size(); ++j) {
-      if (p2[j] == 0)
-        continue;
+      if (p2[j] == 0) continue;
       result[i + j] = add(result[i + j], mul(p1[i], p2[j]));
     }
   }
   return result;
 }
 
-} // namespace ccsds
+}  // namespace ccsds

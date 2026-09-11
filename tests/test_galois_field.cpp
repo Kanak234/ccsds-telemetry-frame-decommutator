@@ -1,6 +1,7 @@
-#include "ccsds/galois_field.hpp"
 #include <cassert>
 #include <iostream>
+
+#include "ccsds/galois_field.hpp"
 
 void test_addition_subtraction() {
   // In GF(2^8), addition and subtraction are XOR
@@ -62,7 +63,7 @@ void test_polynomial_ops() {
   std::vector<uint8_t> prod = gf.poly_mul(p1, p2);
   assert(prod.size() == 3);
   assert(prod[0] == 1);
-  assert(prod[1] == 0); // 1 + 1 = 0
+  assert(prod[1] == 0);  // 1 + 1 = 0
   assert(prod[2] == 1);
 }
 

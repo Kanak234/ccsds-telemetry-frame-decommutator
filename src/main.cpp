@@ -1,4 +1,3 @@
-#include "ccsds/decommutator.hpp"
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -6,7 +5,9 @@
 #include <string>
 #include <vector>
 
-void print_usage(const char *prog_name) {
+#include "ccsds/decommutator.hpp"
+
+void print_usage(const char* prog_name) {
   std::cout << "CCSDS Telemetry Frame Decommutator\n";
   std::cout << "Usage: " << prog_name << " [OPTIONS]\n\n";
   std::cout << "Options:\n";
@@ -22,12 +23,11 @@ void print_usage(const char *prog_name) {
                "decoding\n";
   std::cout << "  --no-descramble          Disable CCSDS pseudo-random "
                "descrambling\n";
-  std::cout
-      << "  --no-crc                 Disable CRC-16-CCITT FECF verification\n";
+  std::cout << "  --no-crc                 Disable CRC-16-CCITT FECF verification\n";
   std::cout << "  -h, --help               Display this help message\n";
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   std::string input_path;
   bool print_apids = true;
   ccsds::DecommutatorConfig config;
@@ -74,8 +74,7 @@ int main(int argc, char *argv[]) {
   std::cout << "=== CCSDS Telemetry Frame Decommutator ===\n";
   std::cout << "Ingesting stream from: " << input_path << "\n";
   std::cout << "CADU Size: " << config.frame_size
-            << " bytes | ASM Tolerance: " << config.asm_tolerance
-            << " bits\n\n";
+            << " bytes | ASM Tolerance: " << config.asm_tolerance << " bits\n\n";
 
   constexpr size_t CHUNK_SIZE = 64 * 1024;
   std::vector<uint8_t> buffer(CHUNK_SIZE);
@@ -83,23 +82,21 @@ int main(int argc, char *argv[]) {
   size_t packet_count = 0;
   std::map<uint16_t, size_t> apid_counts;
 
-  decommutator.set_packet_callback([&](const ccsds::SpacePacket &pkt,
-                                       const ccsds::TransferFrameHeader &tf) {
+  decommutator.set_packet_callback([&](const ccsds::SpacePacket& pkt,
+                                       const ccsds::TransferFrameHeader& tf) {
     ++packet_count;
     apid_counts[pkt.apid]++;
     if (print_apids && packet_count <= 20) {
-      std::cout << "[PACKET #" << std::setw(4) << packet_count << "] "
-                << "APID: " << std::setw(4) << pkt.apid << " | "
-                << "VCID: " << static_cast<int>(tf.virtual_channel_id) << " | "
-                << "MC_CNT: " << std::setw(3)
-                << static_cast<int>(tf.master_frame_count) << " | "
-                << "SEQ: " << std::setw(5) << pkt.sequence_count << " | "
-                << "Payload: " << pkt.payload.size() << " bytes\n";
+      std::cout << "[PACKET #" << std::setw(4) << packet_count << "] ";
+      std::cout << "APID: " << std::setw(4) << pkt.apid << " | ";
+      std::cout << "VCID: " << static_cast<int>(tf.virtual_channel_id) << " | ";
+      std::cout << "MC_CNT: " << std::setw(3) << static_cast<int>(tf.master_frame_count) << " | ";
+      std::cout << "SEQ: " << std::setw(5) << pkt.sequence_count << " | ";
+      std::cout << "Payload: " << pkt.payload.size() << " bytes\n";
     }
   });
 
-  while (file.read(reinterpret_cast<char *>(buffer.data()), CHUNK_SIZE) ||
-         file.gcount() > 0) {
+  while (file.read(reinterpret_cast<char*>(buffer.data()), CHUNK_SIZE) || file.gcount() > 0) {
     size_t bytes_read = static_cast<size_t>(file.gcount());
     decommutator.ingest(std::span<const uint8_t>(buffer.data(), bytes_read));
   }
@@ -111,18 +108,16 @@ int main(int argc, char *argv[]) {
   std::cout << "CADUs Synchronized:    " << stats.cadus_synchronized << "\n";
   std::cout << "ASM Bit Errors:        " << stats.asm_bit_errors << "\n";
   std::cout << "RS Corrected Symbols:  " << stats.rs_corrected_symbols << "\n";
-  std::cout << "RS Uncorrectable:      " << stats.rs_uncorrectable_frames
-            << "\n";
+  std::cout << "RS Uncorrectable:      " << stats.rs_uncorrectable_frames << "\n";
   std::cout << "CRC Passed Frames:     " << stats.crc_passed_frames << "\n";
   std::cout << "CRC Failed Frames:     " << stats.crc_failed_frames << "\n";
   std::cout << "Packets Decommutated:  " << stats.packets_extracted << "\n";
 
   if (!apid_counts.empty()) {
     std::cout << "\n--- Decommutated APID Breakdown ---\n";
-    for (const auto &[apid, count] : apid_counts) {
-      std::cout << "  APID 0x" << std::hex << std::setw(3) << std::setfill('0')
-                << apid << " (" << std::dec << apid << "): " << count
-                << " packets\n";
+    for (const auto& [apid, count] : apid_counts) {
+      std::cout << "  APID 0x" << std::hex << std::setw(3) << std::setfill('0') << apid << " ("
+                << std::dec << apid << "): " << count << " packets\n";
     }
   }
 

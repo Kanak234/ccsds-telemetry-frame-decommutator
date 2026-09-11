@@ -1,20 +1,19 @@
-#include "ccsds/frame_sync.hpp"
 #include <cassert>
 #include <iostream>
 #include <vector>
 
+#include "ccsds/frame_sync.hpp"
+
 void test_hamming_distance() {
-  assert(ccsds::FrameSynchronizer::hamming_distance(0x1ACFFC1D, 0x1ACFFC1D) ==
-         0);
+  assert(ccsds::FrameSynchronizer::hamming_distance(0x1ACFFC1D, 0x1ACFFC1D) == 0);
   assert(ccsds::FrameSynchronizer::hamming_distance(0x1ACFFC1D, 0x1ACFFC1C) ==
-         1); // 1 bit flip (LSB)
-  assert(ccsds::FrameSynchronizer::hamming_distance(0x00000000, 0xFFFFFFFF) ==
-         32);
+         1);  // 1 bit flip (LSB)
+  assert(ccsds::FrameSynchronizer::hamming_distance(0x00000000, 0xFFFFFFFF) == 32);
 }
 
 void test_sync_state_machine() {
   ccsds::DecommutatorConfig config;
-  config.frame_size = 100; // 4-byte ASM + 96-byte payload
+  config.frame_size = 100;  // 4-byte ASM + 96-byte payload
   config.asm_tolerance = 1;
   config.check_frames_required = 2;
   config.flywheel_max_frames = 2;

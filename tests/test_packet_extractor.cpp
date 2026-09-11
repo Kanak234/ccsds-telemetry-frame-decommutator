@@ -1,14 +1,15 @@
-#include "ccsds/packet_extractor.hpp"
 #include <cassert>
 #include <iostream>
+
+#include "ccsds/packet_extractor.hpp"
 
 void test_packet_serialization_parse() {
   ccsds::SpacePacket pkt;
   pkt.version = 0;
-  pkt.type = false; // Telemetry
+  pkt.type = false;  // Telemetry
   pkt.secondary_header_flag = false;
-  pkt.apid = 0x42A;       // 1066
-  pkt.sequence_flags = 3; // Unsegmented standalone
+  pkt.apid = 0x42A;        // 1066
+  pkt.sequence_flags = 3;  // Unsegmented standalone
   pkt.sequence_count = 1234;
   pkt.payload = {0xDE, 0xAD, 0xBE, 0xEF, 0xCA, 0xFE};
   pkt.packet_data_length = static_cast<uint16_t>(pkt.payload.size() - 1);
@@ -18,7 +19,7 @@ void test_packet_serialization_parse() {
 
   auto parsed_opt = ccsds::PacketExtractor::parse_packet(raw);
   assert(parsed_opt.has_value());
-  const auto &parsed = parsed_opt.value();
+  const auto& parsed = parsed_opt.value();
 
   assert(parsed.version == pkt.version);
   assert(parsed.type == pkt.type);
@@ -57,13 +58,12 @@ void test_packet_spanning_two_frames() {
   pkt2.sequence_count = 2;
   pkt2.sequence_flags = 3;
   pkt2.payload = {0x01, 0x02, 0x03, 0x04};
-  std::vector<uint8_t> raw_pkt2 =
-      ccsds::PacketExtractor::serialize_packet(pkt2); // 6+4 = 10 bytes
+  std::vector<uint8_t> raw_pkt2 = ccsds::PacketExtractor::serialize_packet(pkt2);  // 6+4 = 10 bytes
 
   std::vector<uint8_t> frame2_data(raw_pkt.begin() + 16,
-                                   raw_pkt.end()); // 10 bytes
+                                   raw_pkt.end());  // 10 bytes
   frame2_data.insert(frame2_data.end(), raw_pkt2.begin(),
-                     raw_pkt2.end()); // 10 bytes
+                     raw_pkt2.end());  // 10 bytes
 
   auto pkts2 = extractor.ingest_frame_data(1, 10, frame2_data);
   // Frame 2 should complete both pkt1 and pkt2!

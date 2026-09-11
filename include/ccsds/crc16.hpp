@@ -16,7 +16,7 @@ namespace ccsds {
  * Final XOR: 0x0000
  */
 class Crc16 {
-public:
+ public:
   Crc16();
 
   // Computes the 16-bit CRC over the specified data buffer.
@@ -26,13 +26,13 @@ public:
   // The total span includes the data bytes and the trailing 2-byte CRC.
   bool verify(std::span<const uint8_t> frame_with_crc) const;
 
-private:
+ private:
   std::array<uint16_t, 256> table_{};
 
   // Precomputes the 256-entry lookup table for O(1) byte-wise processing
   void init_table();
 };
 
-} // namespace ccsds
+}  // namespace ccsds
 
-#endif // CCSDS_CRC16_HPP
+#endif  // CCSDS_CRC16_HPP

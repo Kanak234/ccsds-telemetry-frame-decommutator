@@ -1,12 +1,11 @@
 #include "ccsds/reed_solomon.hpp"
+
 #include <algorithm>
 #include <cassert>
 
 namespace ccsds {
 
-ReedSolomon::ReedSolomon(int first_root) : first_root_(first_root) {
-  compute_generator_poly();
-}
+ReedSolomon::ReedSolomon(int first_root) : first_root_(first_root) { compute_generator_poly(); }
 
 void ReedSolomon::compute_generator_poly() {
   generator_poly_ = {1};
@@ -20,8 +19,7 @@ void ReedSolomon::compute_generator_poly() {
 void ReedSolomon::encode(std::span<const uint8_t> message,
                          std::span<uint8_t> output_codeword) const {
   assert(message.size() <= 223 && "Message must be <= 223 bytes");
-  assert(output_codeword.size() == 255 &&
-         "Output codeword must be exactly 255 bytes");
+  assert(output_codeword.size() == 255 && "Output codeword must be exactly 255 bytes");
 
   std::fill(output_codeword.begin(), output_codeword.end(), 0);
   std::copy(message.begin(), message.end(), output_codeword.begin());
@@ -32,8 +30,7 @@ void ReedSolomon::encode(std::span<const uint8_t> message,
     uint8_t feedback = GaloisField::add(message[i], remainder[31]);
     if (feedback != 0) {
       for (size_t j = 31; j > 0; --j) {
-        remainder[j] = GaloisField::add(remainder[j - 1],
-                                        gf_.mul(feedback, generator_poly_[j]));
+        remainder[j] = GaloisField::add(remainder[j - 1], gf_.mul(feedback, generator_poly_[j]));
       }
       remainder[0] = gf_.mul(feedback, generator_poly_[0]);
     } else {
@@ -49,8 +46,7 @@ void ReedSolomon::encode(std::span<const uint8_t> message,
   }
 }
 
-std::vector<uint8_t>
-ReedSolomon::compute_syndromes(std::span<const uint8_t> codeword) const {
+std::vector<uint8_t> ReedSolomon::compute_syndromes(std::span<const uint8_t> codeword) const {
   std::vector<uint8_t> syndromes(32, 0);
   for (size_t i = 0; i < 32; ++i) {
     uint8_t root = gf_.exp(first_root_ + static_cast<int>(i));
@@ -63,8 +59,7 @@ ReedSolomon::compute_syndromes(std::span<const uint8_t> codeword) const {
   return syndromes;
 }
 
-std::vector<uint8_t>
-ReedSolomon::berlekamp_massey(const std::vector<uint8_t> &syndromes) const {
+std::vector<uint8_t> ReedSolomon::berlekamp_massey(const std::vector<uint8_t>& syndromes) const {
   std::vector<uint8_t> lambda = {1};
   std::vector<uint8_t> b = {1};
   size_t l = 0;
@@ -109,8 +104,7 @@ ReedSolomon::berlekamp_massey(const std::vector<uint8_t> &syndromes) const {
   return lambda;
 }
 
-std::vector<uint8_t>
-ReedSolomon::formal_derivative(const std::vector<uint8_t> &poly) const {
+std::vector<uint8_t> ReedSolomon::formal_derivative(const std::vector<uint8_t>& poly) const {
   if (poly.size() <= 1) {
     return {0};
   }
@@ -191,8 +185,7 @@ RsDecodeResult ReedSolomon::decode(std::span<uint8_t> codeword) const {
       return result;
     }
 
-    uint8_t scale =
-        gf_.exp((1 - first_root_) * static_cast<int>(gf_.log(x_val)));
+    uint8_t scale = gf_.exp((1 - first_root_) * static_cast<int>(gf_.log(x_val)));
     uint8_t error_val = gf_.mul(scale, gf_.div(omega_val, lambda_prime_val));
 
     codeword[pos] = GaloisField::add(codeword[pos], error_val);
@@ -212,9 +205,8 @@ RsDecodeResult ReedSolomon::decode(std::span<uint8_t> codeword) const {
   return result;
 }
 
-bool ReedSolomon::decode_interleaved(std::span<uint8_t> data,
-                                     size_t interleaving_depth,
-                                     size_t &total_errors_corrected) const {
+bool ReedSolomon::decode_interleaved(std::span<uint8_t> data, size_t interleaving_depth,
+                                     size_t& total_errors_corrected) const {
   if (interleaving_depth == 0 || data.size() != interleaving_depth * 255) {
     return false;
   }
@@ -242,4 +234,4 @@ bool ReedSolomon::decode_interleaved(std::span<uint8_t> data,
   return true;
 }
 
-} // namespace ccsds
+}  // namespace ccsds

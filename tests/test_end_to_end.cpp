@@ -1,11 +1,11 @@
-#include "ccsds/decommutator.hpp"
 #include <cassert>
 #include <iostream>
 #include <vector>
 
+#include "ccsds/decommutator.hpp"
+
 int main() {
-  std::cout
-      << "[TEST] Running End-to-End CCSDS Telemetry Decommutation test...\n";
+  std::cout << "[TEST] Running End-to-End CCSDS Telemetry Decommutation test...\n";
 
   ccsds::DecommutatorConfig config;
   config.frame_size = 1024;
@@ -39,9 +39,8 @@ int main() {
   }
 
   constexpr size_t RS_DEPTH = 4;
-  constexpr size_t TF_INFO_LEN = RS_DEPTH * 223; // 892 bytes
-  constexpr size_t DATA_FIELD_LEN =
-      TF_INFO_LEN - ccsds::TF_PRIMARY_HEADER_SIZE - 2; // 884 bytes
+  constexpr size_t TF_INFO_LEN = RS_DEPTH * 223;                                      // 892 bytes
+  constexpr size_t DATA_FIELD_LEN = TF_INFO_LEN - ccsds::TF_PRIMARY_HEADER_SIZE - 2;  // 884 bytes
 
   // Pad stream with a standard CCSDS Idle Packet (APID 0x7FF) to cleanly fill
   // the final frame
@@ -53,12 +52,9 @@ int main() {
       idle_pkt.apid = ccsds::IDLE_APID;
       idle_pkt.sequence_flags = 3;
       idle_pkt.payload.resize(pad_needed - ccsds::SPACE_PACKET_HEADER_SIZE);
-      idle_pkt.packet_data_length =
-          static_cast<uint16_t>(idle_pkt.payload.size() - 1);
-      std::vector<uint8_t> idle_raw =
-          ccsds::PacketExtractor::serialize_packet(idle_pkt);
-      packet_stream.insert(packet_stream.end(), idle_raw.begin(),
-                           idle_raw.end());
+      idle_pkt.packet_data_length = static_cast<uint16_t>(idle_pkt.payload.size() - 1);
+      std::vector<uint8_t> idle_raw = ccsds::PacketExtractor::serialize_packet(idle_pkt);
+      packet_stream.insert(packet_stream.end(), idle_raw.begin(), idle_raw.end());
     }
   }
 
@@ -74,7 +70,7 @@ int main() {
     size_t frame_end_offset = frame_start_offset + DATA_FIELD_LEN;
 
     // Calculate First Header Pointer (FHP) for this frame
-    uint16_t fhp = 0x7FF; // Default: no packet starts in this frame
+    uint16_t fhp = 0x7FF;  // Default: no packet starts in this frame
     for (size_t p_offset : packet_start_offsets) {
       if (p_offset >= frame_start_offset && p_offset < frame_end_offset) {
         fhp = static_cast<uint16_t>(p_offset - frame_start_offset);
@@ -82,13 +78,10 @@ int main() {
       }
     }
 
-    size_t chunk_len =
-        std::min(DATA_FIELD_LEN, packet_stream.size() - stream_offset);
+    size_t chunk_len = std::min(DATA_FIELD_LEN, packet_stream.size() - stream_offset);
     std::vector<uint8_t> data_field(DATA_FIELD_LEN, 0x00);
-    std::copy(packet_stream.begin() +
-                  static_cast<std::ptrdiff_t>(stream_offset),
-              packet_stream.begin() +
-                  static_cast<std::ptrdiff_t>(stream_offset + chunk_len),
+    std::copy(packet_stream.begin() + static_cast<std::ptrdiff_t>(stream_offset),
+              packet_stream.begin() + static_cast<std::ptrdiff_t>(stream_offset + chunk_len),
               data_field.begin());
 
     ccsds::TransferFrameHeader hdr;
@@ -128,8 +121,7 @@ int main() {
   }
 
   // Prepend 10 junk bytes to test SEARCH synchronization
-  std::vector<uint8_t> noisy_stream = {0xFF, 0x00, 0xAA, 0x55, 0x12,
-                                       0x34, 0x56, 0x78, 0x9A, 0xBC};
+  std::vector<uint8_t> noisy_stream = {0xFF, 0x00, 0xAA, 0x55, 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC};
   noisy_stream.insert(noisy_stream.end(), raw_cadus.begin(), raw_cadus.end());
 
   // Inject 1 bit flip into the second frame's ASM (tolerated by ASM tolerance
@@ -150,8 +142,7 @@ int main() {
   assert(decommutated_packets.size() == original_packets.size());
   for (size_t i = 0; i < original_packets.size(); ++i) {
     assert(decommutated_packets[i].apid == original_packets[i].apid);
-    assert(decommutated_packets[i].sequence_count ==
-           original_packets[i].sequence_count);
+    assert(decommutated_packets[i].sequence_count == original_packets[i].sequence_count);
     assert(decommutated_packets[i].payload == original_packets[i].payload);
   }
 

@@ -24,9 +24,8 @@ void Descrambler::generate_sequence() {
 
       // Polynomial feedback: x^8 + x^7 + x^5 + x^3 + 1
       // taps at bit positions: 7, 6, 4, 2 (0-indexed from LSB to MSB)
-      uint8_t feedback = ((shift_reg >> 7) ^ (shift_reg >> 6) ^
-                          (shift_reg >> 4) ^ (shift_reg >> 2)) &
-                         1;
+      uint8_t feedback =
+          ((shift_reg >> 7) ^ (shift_reg >> 6) ^ (shift_reg >> 4) ^ (shift_reg >> 2)) & 1;
 
       shift_reg = static_cast<uint8_t>((shift_reg << 1) | feedback);
     }
@@ -46,4 +45,4 @@ void Descrambler::process(std::span<uint8_t> data) const {
   }
 }
 
-} // namespace ccsds
+}  // namespace ccsds
