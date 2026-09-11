@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Build and Publish Release Assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang
+
+      - name: Configure and Build
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: Package Binaries
+        run: |
+          mkdir -p dist
+          tar -czf dist/ccsds_decommutator-linux-x86_64.tar.gz -C build ccsds_decommutator benchmark_throughput
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/ccsds_decommutator-linux-x86_64.tar.gz
+            dist/SHA256SUMS.txt
+          generate_release_notes: true

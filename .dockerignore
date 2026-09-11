@@ -1,9 +1,9 @@
-build*/
-bin/
-.git
-*.o
-*.a
-*.so
+build/
+build-*/
+.git/
+.github/
 *.gcda
 *.gcno
 *.gcov
+coverage/
+Testing/

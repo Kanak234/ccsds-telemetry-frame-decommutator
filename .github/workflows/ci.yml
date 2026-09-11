@@ -2,15 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master, main, prod-hardening ]
   pull_request:
     branches: [ master, main ]
 
 jobs:
   build-and-test:
-    name: Build, Lint & Test (Ubuntu Clang & GCC)
+    name: Build, Lint & Test (${{ matrix.compiler }}, ${{ matrix.build_type }})
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         compiler: [clang, gcc]
         build_type: [Release, Debug]
@@ -41,7 +42,8 @@ jobs:
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cxx_compiler }}
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx_compiler }} \
+            ${{ matrix.compiler == 'gcc' && matrix.build_type == 'Debug' && '-DENABLE_COVERAGE=ON' || '' }}
 
       - name: Build all targets
         run: |
@@ -51,7 +53,48 @@ jobs:
         run: |
           ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}
 
+      - name: Verify code coverage (>=80% on all source files)
+        if: matrix.compiler == 'gcc' && matrix.build_type == 'Debug'
+        run: |
+          python3 -c "
+          import subprocess, sys, glob
+          objs = glob.glob('build/CMakeFiles/ccsds_core.dir/src/*.o')
+          out = subprocess.check_output(['gcov', '-n'] + objs, text=True)
+          lines = out.splitlines()
+          failed = False
+          checked = 0
+          for i, line in enumerate(lines):
+              if 'File \'' in line and 'src/' in line:
+                  exec_line = lines[i+1]
+                  pct = float(exec_line.split(':')[1].split('%')[0])
+                  fname = line.split('\'')[1]
+                  print(f'{fname}: {pct}%')
+                  checked += 1
+                  if pct < 80.0:
+                      print(f'FAIL: {fname} coverage {pct}% < 80%')
+                      failed = True
+          if checked == 0:
+              print('ERROR: No coverage files found!')
+              sys.exit(1)
+          if failed:
+              sys.exit(1)
+          print(f'All {checked} source files meet >=80% coverage threshold.')
+          "
+
+      - name: Run Health Check
+        if: matrix.build_type == 'Release'
+        run: ./build/ccsds_decommutator health
+
       - name: Run throughput benchmark
         if: matrix.build_type == 'Release'
+        run: ./build/benchmark_throughput
+
+      - name: Build Docker Image
+        if: matrix.compiler == 'gcc' && matrix.build_type == 'Release'
         run: |
-          ./build/benchmark_throughput
+          docker build -t ccsds:test .
+
+      - name: Docker Smoke Test
+        if: matrix.compiler == 'gcc' && matrix.build_type == 'Release'
+        run: |
+          docker run --rm ccsds:test health

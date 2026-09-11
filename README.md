@@ -1,9 +1,11 @@
 # CCSDS Telemetry Frame Decommutator
 
+[![CI](https://github.com/Kanak234/ccsds-telemetry-frame-decommutator/actions/workflows/ci.yml/badge.svg)](https://github.com/Kanak234/ccsds-telemetry-frame-decommutator/actions/workflows/ci.yml)
+[![CodeQL Analysis](https://github.com/Kanak234/ccsds-telemetry-frame-decommutator/actions/workflows/codeql.yml/badge.svg)](https://github.com/Kanak234/ccsds-telemetry-frame-decommutator/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B20)
 [![CCSDS Compliance](https://img.shields.io/badge/CCSDS-131.0--B--3%20%7C%20132.0--B--2%20%7C%20133.0--B--1-green.svg)](https://public.ccsds.org/)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Coverage](https://img.shields.io/badge/coverage-%3E80%25-brightgreen.svg)](#building-and-testing)
 
 A high-performance, deterministic C++20 telemetry decommutation and ground station frame processing engine. Implements bitstream synchronization, Galois Field $GF(2^8)$ Reed-Solomon error correction, LFSR pseudo-random derandomization, Transfer Frame integrity verification, and Space Packet reassembly according to international CCSDS standards.
 
