@@ -115,7 +115,17 @@ PacketExtractor::ingest_frame_data(uint8_t vcid, uint16_t first_header_pointer,
 
   if (first_header_pointer == 0x7FF) {
     if (!vcb.buffer.empty()) {
+      // GCC 13 emits a false-positive -Wstringop-overflow warning on
+      // vector::insert from std::span iterators under -O3 optimization (GCC
+      // Bugzilla #109849).
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
       vcb.buffer.insert(vcb.buffer.end(), data_field.begin(), data_field.end());
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic pop
+#endif
       std::vector<SpacePacket> extracted = extract_from_buffer(vcb.buffer);
       packets.insert(packets.end(), extracted.begin(), extracted.end());
     }
@@ -124,18 +134,32 @@ PacketExtractor::ingest_frame_data(uint8_t vcid, uint16_t first_header_pointer,
 
   if (first_header_pointer <= data_field.size()) {
     if (first_header_pointer > 0 && !vcb.buffer.empty()) {
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
       vcb.buffer.insert(vcb.buffer.end(), data_field.begin(),
                         data_field.begin() +
                             static_cast<std::ptrdiff_t>(first_header_pointer));
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic pop
+#endif
       std::vector<SpacePacket> extracted = extract_from_buffer(vcb.buffer);
       packets.insert(packets.end(), extracted.begin(), extracted.end());
     }
 
     vcb.buffer.clear();
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     vcb.buffer.insert(vcb.buffer.end(),
                       data_field.begin() +
                           static_cast<std::ptrdiff_t>(first_header_pointer),
                       data_field.end());
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ == 13)
+#pragma GCC diagnostic pop
+#endif
     std::vector<SpacePacket> extracted = extract_from_buffer(vcb.buffer);
     packets.insert(packets.end(), extracted.begin(), extracted.end());
   } else {
