@@ -10,9 +10,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+option(ENABLE_COVERAGE "Enable code coverage instrumentation" OFF)
+
 # Enforce strict compiler hygiene: warnings treated as errors
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Werror -pedantic -Wconversion -Wsign-conversion -O3)
+endif()
+
+if(ENABLE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(--coverage -O0 -g)
+    add_link_options(--coverage)
 endif()
 
 # Core Library
@@ -52,6 +59,7 @@ set(TEST_SOURCES
     test_transfer_frame
     test_packet_extractor
     test_end_to_end
+    test_decommutator_edge_cases
 )
 
 foreach(TEST_NAME ${TEST_SOURCES})
