@@ -87,12 +87,12 @@ int main(int argc, char* argv[]) {
     ++packet_count;
     apid_counts[pkt.apid]++;
     if (print_apids && packet_count <= 20) {
-      std::cout << "[PACKET #" << std::setw(4) << packet_count << "] "
-                << "APID: " << std::setw(4) << pkt.apid << " | "
-                << "VCID: " << static_cast<int>(tf.virtual_channel_id) << " | "
-                << "MC_CNT: " << std::setw(3) << static_cast<int>(tf.master_frame_count) << " | "
-                << "SEQ: " << std::setw(5) << pkt.sequence_count << " | "
-                << "Payload: " << pkt.payload.size() << " bytes\n";
+      std::cout << "[PACKET #" << std::setw(4) << packet_count << "] ";
+      std::cout << "APID: " << std::setw(4) << pkt.apid << " | ";
+      std::cout << "VCID: " << static_cast<int>(tf.virtual_channel_id) << " | ";
+      std::cout << "MC_CNT: " << std::setw(3) << static_cast<int>(tf.master_frame_count) << " | ";
+      std::cout << "SEQ: " << std::setw(5) << pkt.sequence_count << " | ";
+      std::cout << "Payload: " << pkt.payload.size() << " bytes\n";
     }
   });
 
